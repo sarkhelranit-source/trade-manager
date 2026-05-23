@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: 'Courier New', monospace;
+      font-size: 13px
+    }
+
+    select,
+    input {
+      font-family: 'Courier New', monospace
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #0d1117
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #30363d;
+      border-radius: 2px
+    }
+
+    .wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      height: calc(100vh - 44px)
+    }
+
+    .panel {
+      border-right: 1px solid #21262d;
+      overflow: auto
+    }
+
+    .panel:last-child {
+      border-right: none
+    }
+
+    .card {
+      background: #161b22;
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin-bottom: 9px;
+      border: 1px solid #21262d
+    }
+
+    .card-title {
+      color: #8b949e;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 10px
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      border-bottom: 1px solid #21262d
+    }
+
+    .row:last-child {
+      border-bottom: none
+    }
+
+    .lbl {
+      color: #8b949e;
+      font-size: 12px
+    }
+
+    .val {
+      color: #e6edf3;
+      font-size: 13px;
+      font-weight: 700
+    }
+
+    .edt {
+      background: #1c2128;
+      color: #f0f6fc;
+      border: 1px solid #d29922;
+      padding: 4px 8px;
+      border-radius: 4px;
+      text-align: right;
+      font-size: 13px;
+      font-weight: 700;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .edt:hover {
+      border-color: #e3b341;
+      box-shadow: 0 0 0 2px rgba(210, 153, 34, 0.15)
+    }
+
+    .edt:focus {
+      border-color: #f0c050;
+      box-shadow: 0 0 0 3px rgba(210, 153, 34, 0.25);
+      background: #21262d
+    }
+
+    .edt-sm {
+      width: 72px
+    }
+
+    .edt-md {
+      width: 95px
+    }
+
+    .edt-lg {
+      width: 110px
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px
+    }
+
+    th {
+      background: #161b22;
+      padding: 7px 5px;
+      color: #8b949e;
+      font-weight: 600;
+      font-size: 10px;
+      letter-spacing: 0.8px;
+      border-bottom: 2px solid #21262d;
+      position: sticky;
+      top: 0;
+      z-index: 5
+    }
+
+    td {
+      padding: 5px;
+      border-bottom: 1px solid #161b22
+    }
+
+    .res-sel {
+      border: none;
+      padding: 3px 4px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 58px
+    }
+
+    button {
+      cursor: pointer;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace
+    }
+
+    .edit-tag {
+      font-size: 9px;
+      color: #d29922;
+      letter-spacing: 0.5px;
+      margin-left: 5px;
+      vertical-align: middle
+    }
+  </style>
+</head>
+
+<body>
+
+  <div
+    style="background:#161b22;border-bottom:1px solid #30363d;padding:9px 14px;display:flex;justify-content:space-between;align-items:center">
+    <div style="color:#f0f6fc;font-size:15px;font-weight:700;letter-spacing:2px">⚔ RANIT SARKHEL TRADE MANAGER</div>
+    <button id="newSessionBtn"
+      style="background:#d29922;color:#0d1117;border:none;padding:6px 13px;font-weight:700;font-size:12px;letter-spacing:0.5px">+
+      NEW SESSION</button>
+  </div>
+
+  <div class="wrap">
+
+    <!-- LEFT: Trade Log -->
+    <div class="panel" style="padding:0">
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:center;width:28px">NO.</th>
+            <th style="text-align:center;width:68px">RESULT</th>
+            <th style="text-align:right;width:82px">TRADE AMT <span class="edit-tag">✏</span></th>
+            <th style="text-align:right;width:78px">RETURN</th>
+            <th style="text-align:right">CUR. BALANCE</th>
+          </tr>
+        </thead>
+        <tbody id="tradeBody"></tbody>
+      </table>
+      <div style="padding:10px;text-align:center">
+        <button id="clearBtn"
+          style="background:#21262d;color:#8b949e;border:1px solid #30363d;padding:5px 18px;font-size:11px;letter-spacing:1px">CLEAR</button>
+      </div>
+    </div>
+
+    <!-- MIDDLE: Calculations -->
+    <div class="panel" style="padding:10px 9px">
+
+      <div
+        style="background:#21262d;border-radius:4px;padding:5px 10px;margin-bottom:9px;display:flex;align-items:center;gap:6px;font-size:10px;color:#d29922;border:1px solid #d2992240">
+        <span>✏</span><span>Gold-bordered fields are editable — click to change</span>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Calculations</div>
+        <div class="row">
+          <span class="lbl">Initial Capital <span class="edit-tag">✏</span></span>
+          <input type="number" id="initialCapital" class="edt edt-lg" value="3296.53" step="0.01" min="0">
+        </div>
+        <div class="row"><span class="lbl">Total Trades</span><span class="val" id="totalTrades">0</span></div>
+        <div class="row"><span class="lbl">Win Trades</span><span class="val" id="winTrades">0</span></div>
+        <div class="row">
+          <span class="lbl">Payout % <span class="edit-tag">✏</span></span>
+          <input type="number" id="payoutPct" class="edt edt-sm" value="0.92" step="0.01" min="0.01" max="1">
+        </div>
+        <div class="row">
+          <span class="lbl">Currency <span class="edit-tag">✏</span></span>
+          <select id="currency"
+            style="background:#1c2128;color:#f0f6fc;border:1px solid #d29922;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:700;outline:none">
+            <option value="USD ($)">USD ($)</option>
+            <option value="EUR (€)">EUR (€)</option>
+            <option value="GBP (£)">GBP (£)</option>
+            <option value="INR (₹)">INR (₹)</option>
+            <option value="AUD (A$)">AUD (A$)</option>
+            <option value="CAD (C$)">CAD (C$)</option>
+            <option value="JPY (¥)">JPY (¥)</option>
+            <option value="BTC (₿)">BTC (₿)</option>
+          </select>
+        </div>
+        <div style="text-align:right;margin-top:6px"><span id="wrBadge"
+            style="background:#21262d;color:#8b949e;padding:2px 8px;border-radius:10px;font-size:11px;display:none">0%
+            W/R</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Session Target</div>
+        <div class="row"><span class="lbl">Capital Final</span><span class="val" id="capitalFinal">$0.00</span></div>
+        <div class="row"><span class="lbl">Account Gain</span><span class="val" id="accountGain">0.00%</span></div>
+        <div class="row">
+          <span class="lbl">Win Profit <span class="edit-tag">✏</span></span>
+          <div
+            style="background:#238636;border-radius:4px;padding:1px 8px;display:flex;align-items:center;gap:3px;border:1px solid #3fb950">
+            <span id="currSymbol" style="color:#f0f6fc;font-size:12px">$</span>
+            <input type="number" id="sessionProfit" value="1" step="0.01" min="0.01"
+              style="background:transparent;color:#f0f6fc;border:none;width:58px;text-align:right;font-size:13px;font-weight:700;outline:none">
+          </div>
+        </div>
+        <div class="row">
+          <span class="lbl">Stop Loss <span class="edit-tag">✏</span>&nbsp;<span style="font-size:9px;color:#8b949e">(%
+              of capital)</span></span>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span class="val" id="stopLoss" style="color:#d29922">$0.00</span>
+            <input type="number" id="stopLossPct" class="edt" value="20" step="1" min="1" max="99"
+              style="width:52px;font-size:12px;padding:3px 5px">
+            <span style="color:#8b949e;font-size:11px">%</span>
+          </div>
+        </div>
+        <div class="row">
+          <span class="lbl">Max Loss Limit <span class="edit-tag">✏</span></span>
+          <input type="number" id="maxLoss" class="edt edt-sm" value="11" step="1" min="1">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Session Performance</div>
+        <div class="row">
+          <span class="lbl">Events Won</span>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="val" id="eventsWon">0.00</span>
+            <span id="wonPct"
+              style="background:#0f2a1a;color:#3fb950;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:700">0%</span>
+          </div>
+        </div>
+        <div class="row">
+          <span class="lbl">Events Lost</span>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="val" id="eventsLost">0.00</span>
+            <span id="lostPct"
+              style="background:#2a0f0f;color:#f85149;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:700">0%</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: Counter + Daily Goals -->
+    <div class="panel" style="padding:10px 9px">
+      <div style="display:flex;gap:8px;margin-bottom:9px">
+        <button
+          style="flex:1;background:#21262d;color:#8b949e;border:1px solid #30363d;padding:7px;font-size:11px;letter-spacing:0.5px">LOG
+          SESSION</button>
+        <button
+          style="background:#21262d;color:#8b949e;border:1px solid #30363d;padding:7px 12px;font-size:11px">CB</button>
+      </div>
+
+      <div class="card" style="text-align:center;padding:16px 12px">
+        <div class="card-title">Session Counter</div>
+        <div id="sessionCount" style="font-size:80px;font-weight:700;color:#f0f6fc;line-height:1;letter-spacing:-2px">1
+        </div>
+        <div style="display:flex;justify-content:center;gap:8px;margin-top:14px">
+          <button id="decBtn"
+            style="background:#21262d;color:#c9d1d9;border:1px solid #30363d;width:40px;height:34px;font-size:14px">▼</button>
+          <button id="incBtn"
+            style="background:#21262d;color:#c9d1d9;border:1px solid #30363d;width:40px;height:34px;font-size:14px">▲</button>
+        </div>
+        <button id="resetBtn"
+          style="margin-top:8px;background:transparent;color:#484f58;border:1px solid #21262d;padding:3px 12px;font-size:10px;letter-spacing:1px">RESET</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Daily Goals <span style="font-size:8px;letter-spacing:0.3px">(est.)</span></div>
+        <div class="row">
+          <span class="lbl">Profit Target <span class="edit-tag">✏</span></span>
+          <input type="number" id="profitTarget" class="edt edt-sm" value="50" step="1" min="0">
+        </div>
+        <div class="row"><span class="lbl">Daily Goal Format</span><span class="val">$</span></div>
+        <div class="row"><span class="lbl">Sessions Required</span><span class="val" id="sessionsReq"
+            style="color:#79c0ff">50</span></div>
+        <div class="row"><span class="lbl">Account Gain</span><span class="val" id="acctGainGoal"
+            style="color:#3fb950">1.52%</span></div>
+        <div class="row"><span class="lbl">Capital Final</span><span class="val" id="capFinalGoal"
+            style="color:#3fb950">$3346.53</span></div>
+      </div>
+
+      <div class="card" style="border-color:#21262d">
+        <div class="card-title" style="margin-bottom:8px">Formula Reference</div>
+        <div style="font-size:10px;color:#484f58;line-height:1.8">
+          <div>• <span style="color:#79c0ff">Trade 1:</span> $1.10 (Fixed)</div>
+          <div>• <span style="color:#3fb950">After W:</span> Session Ends</div>
+          <div>• <span style="color:#f85149">After L:</span> ROUNDUP((loss + target) ÷ payout, 2)</div>
+          <div>• <span style="color:#d29922">Stop Loss:</span> capital × (1 − stop%)</div>
+          <div>• <span style="color:#8b949e">Sessions:</span> ROUNDUP(profit ÷ win profit, 0)</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const NUM = 20;
+    const results = Array(NUM).fill('');
+    const manualTradeAmts = Array(NUM).fill(null);
+    let sessionCount = 1;
+
+    const round = (v, d) => { const f = Math.pow(10, d); return Math.round(v * f) / f; };
+    const roundUp = (v, d) => { const f = Math.pow(10, d); return Math.ceil(v * f) / f; };
+    const money = v => '$' + Math.abs(v).toFixed(2);
+
+    function getInputs() {
+      return {
+        initialCapital: parseFloat(document.getElementById('initialCapital').value) || 0,
+        payoutPct: parseFloat(document.getElementById('payoutPct').value) || 0.92,
+        sessionProfitTarget: parseFloat(document.getElementById('sessionProfit').value) || 1,
+        stopLossPct: parseFloat(document.getElementById('stopLossPct').value) || 20,
+        maxLossLimit: parseInt(document.getElementById('maxLoss').value) || 99,
+        profitTarget: parseFloat(document.getElementById('profitTarget').value) || 0,
+      };
+    }
+
+    function compute() {
+      const { initialCapital, payoutPct, sessionProfitTarget, maxLossLimit } = getInputs();
+      const trades = [];
+      for (let i = 0; i < NUM; i++) {
+        const result = results[i];
+        const prev = i > 0 ? trades[i - 1] : null;
+        const prevBalance = prev ? prev.balance : initialCapital;
+        const prevResult = prev ? prev.result : null;
+
+        let sessionEnded = false;
+        if (i > 0 && results[i - 1] === 'W') sessionEnded = true;
+        if (i >= maxLossLimit) sessionEnded = true;
+
+        let tradeAmt = null;
+        if (!sessionEnded) {
+          if (manualTradeAmts[i] !== null) {
+            tradeAmt = manualTradeAmts[i];
+          } else if (i === 0) {
+            tradeAmt = 1.10;
+          } else if (prevResult === 'L') {
+            tradeAmt = roundUp((prev.sessionLoss + sessionProfitTarget) / payoutPct, 2);
+          }
+        }
+
+        let ret = null;
+        if (result === 'W' && tradeAmt !== null) ret = round(tradeAmt * payoutPct, 2);
+        else if (result === 'L' && tradeAmt !== null) ret = -tradeAmt;
+
+        const balance = ret !== null ? round(prevBalance + ret, 2) : prevBalance;
+
+        let sessionLoss = 0;
+        if (result === 'L') {
+          if (!prev || prevResult !== 'L') {
+            sessionLoss = tradeAmt || 0;
+          } else {
+            sessionLoss = prev.sessionLoss + (prev.sessionLoss + sessionProfitTarget) / payoutPct;
+          }
+        }
+        trades.push({ result, tradeAmt, ret, balance, sessionLoss });
+      }
+      return trades;
+    }
+
+    function render() {
+      const { initialCapital, profitTarget, sessionProfitTarget, stopLossPct } = getInputs();
+      const trades = compute();
+      const totalTrades = results.filter(r => r === 'W' || r === 'L').length;
+      const winTrades = results.filter(r => r === 'W').length;
+      const lossTrades = results.filter(r => r === 'L').length;
+
+      let capitalFinal = initialCapital;
+      for (let i = NUM - 1; i >= 0; i--) {
+        if (trades[i].ret !== null) { capitalFinal = trades[i].balance; break; }
+      }
+
+      const accountGain = capitalFinal - initialCapital;
+      const accountGainPct = initialCapital > 0 ? accountGain / initialCapital : 0;
+      const stopLoss = round(initialCapital * (1 - stopLossPct / 100), 2);
+      const winRate = totalTrades > 0 ? winTrades / totalTrades : 0;
+      const lossRate = totalTrades > 0 ? lossTrades / totalTrades : 0;
+      const sessionsReq = sessionProfitTarget > 0 ? Math.ceil(profitTarget / sessionProfitTarget) : 0;
+      const acctGainGoal = initialCapital > 0 ? profitTarget / initialCapital : 0;
+
+      document.getElementById('totalTrades').textContent = totalTrades;
+      document.getElementById('winTrades').textContent = winTrades;
+      document.getElementById('capitalFinal').textContent = '$' + capitalFinal.toFixed(2);
+      const agEl = document.getElementById('accountGain');
+      agEl.textContent = (accountGainPct >= 0 ? '+' : '') + (accountGainPct * 100).toFixed(2) + '%';
+      agEl.style.color = accountGain >= 0 ? '#3fb950' : '#f85149';
+      document.getElementById('stopLoss').textContent = '$' + stopLoss.toFixed(2);
+      document.getElementById('eventsWon').textContent = winTrades.toFixed(2);
+      document.getElementById('eventsLost').textContent = lossTrades.toFixed(2);
+      document.getElementById('wonPct').textContent = (totalTrades > 0 ? Math.round(winRate * 100) : 0) + '%';
+      document.getElementById('lostPct').textContent = (totalTrades > 0 ? Math.round(lossRate * 100) : 0) + '%';
+      const wrBadge = document.getElementById('wrBadge');
+      if (totalTrades > 0) { wrBadge.style.display = 'inline'; wrBadge.textContent = Math.round(winRate * 100) + '% W/R'; }
+      else wrBadge.style.display = 'none';
+      document.getElementById('sessionsReq').textContent = sessionsReq;
+      document.getElementById('acctGainGoal').textContent = (acctGainGoal * 100).toFixed(2) + '%';
+      document.getElementById('capFinalGoal').textContent = '$' + (initialCapital + profitTarget).toFixed(2);
+
+      const tbody = document.getElementById('tradeBody');
+      tbody.innerHTML = '';
+      const { maxLossLimit } = getInputs();
+      trades.forEach((trade, i) => {
+        const prevResult = i > 0 ? results[i - 1] : 'seed';
+        const isSessionEnded = (i > 0 && results[i - 1] === 'W') || (i >= maxLossLimit);
+        const canSet = !isSessionEnded && (i === 0 || prevResult === 'L');
+        const rowBg = trade.result === 'W' ? '#0f2a1a' : trade.result === 'L' ? '#2a0f0f' : 'transparent';
+        const retColor = trade.ret > 0 ? '#3fb950' : trade.ret < 0 ? '#f85149' : '#484f58';
+        const balColor = trade.result ? '#f0f6fc' : '#6e7681';
+        const selBg = trade.result === 'W' ? '#238636' : trade.result === 'L' ? '#da3633' : '#21262d';
+        const retDisplay = trade.ret !== null ? (trade.ret >= 0 ? '+' : '') + money(trade.ret) : '—';
+        const amtDisplay = trade.tradeAmt !== null ? `<div style="display:flex;align-items:center;justify-content:flex-end"><span style="color:#484f58;margin-right:2px;font-size:11px">$</span><input type="number" step="0.01" class="amt-in" data-idx="${i}" value="${trade.tradeAmt.toFixed(2)}" style="background:transparent;border:none;color:${manualTradeAmts[i] !== null ? '#d29922' : '#79c0ff'};text-align:right;width:55px;font-family:inherit;font-size:inherit;font-weight:700;outline:none;border-bottom:1px dashed #30363d;padding:0"></div>` : '—';
+        const tr = document.createElement('tr');
+        tr.style.background = rowBg;
+        tr.style.borderBottom = '1px solid #161b22';
+        tr.innerHTML = `
+      <td style="padding:5px 8px;color:#484f58;text-align:center;font-weight:600">${i + 1}</td>
+      <td style="padding:4px 6px;text-align:center">
+        <select data-idx="${i}" class="res-sel" style="background:${selBg};color:#f0f6fc;opacity:${canSet ? 1 : 0.35};cursor:${canSet ? 'pointer' : 'not-allowed'}">
+          <option value="" ${trade.result === '' ? 'selected' : ''}>–</option>
+          <option value="W" ${trade.result === 'W' ? 'selected' : ''}>W ▲</option>
+          <option value="L" ${trade.result === 'L' ? 'selected' : ''}>L ▼</option>
+        </select>
+      </td>
+      <td style="padding:5px 6px;text-align:right;color:#79c0ff">${amtDisplay}</td>
+      <td style="padding:5px 6px;text-align:right;color:${retColor}">${retDisplay}</td>
+      <td style="padding:5px 8px;text-align:right;color:${balColor};font-weight:${trade.result ? 700 : 400}">$${trade.balance.toFixed(2)}</td>
+    `;
+        tbody.appendChild(tr);
+        const sel = tr.querySelector('select');
+        if (!canSet) sel.disabled = true;
+        sel.addEventListener('change', e => {
+          const idx = parseInt(e.target.dataset.idx);
+          results[idx] = e.target.value;
+          for (let j = idx + 1; j < NUM; j++) {
+            if (results[j] !== '') results[j] = ''; else break;
+          }
+          render();
+        });
+        const amtIn = tr.querySelector('.amt-in');
+        if (amtIn) {
+          amtIn.addEventListener('change', e => {
+            const idx = parseInt(e.target.dataset.idx);
+            const val = parseFloat(e.target.value);
+            if (isNaN(val) || e.target.value.trim() === '') {
+              manualTradeAmts[idx] = null;
+            } else {
+              manualTradeAmts[idx] = val;
+            }
+            render();
+          });
+        }
+      });
+    }
+
+    document.querySelectorAll('input[type=number], select#currency').forEach(el => {
+      el.addEventListener('input', render);
+      el.addEventListener('change', render);
+    });
+
+    document.getElementById('newSessionBtn').addEventListener('click', () => {
+      const trades = compute();
+      let capitalFinal = parseFloat(document.getElementById('initialCapital').value) || 0;
+      for (let i = NUM - 1; i >= 0; i--) {
+        if (trades[i].ret !== null) { capitalFinal = trades[i].balance; break; }
+      }
+      document.getElementById('initialCapital').value = capitalFinal.toFixed(2);
+
+      for (let i = 0; i < NUM; i++) { results[i] = ''; manualTradeAmts[i] = null; }
+      sessionCount++;
+      document.getElementById('sessionCount').textContent = sessionCount;
+      render();
+    });
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      for (let i = 0; i < NUM; i++) { results[i] = ''; manualTradeAmts[i] = null; }
+      render();
+    });
+    document.getElementById('incBtn').addEventListener('click', () => { sessionCount++; document.getElementById('sessionCount').textContent = sessionCount; });
+    document.getElementById('decBtn').addEventListener('click', () => { if (sessionCount > 1) { sessionCount--; document.getElementById('sessionCount').textContent = sessionCount; } });
+    document.getElementById('resetBtn').addEventListener('click', () => { sessionCount = 1; document.getElementById('sessionCount').textContent = 1; });
+
+    render();
+  </script>
+</body>
+
+</html>
