@@ -114,10 +114,14 @@ export default function TradeManager() {
 
   return (
     <>
-      <div style={{ background: '#161b22', borderBottom: '1px solid #30363d', padding: '9px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ color: '#f0f6fc', fontSize: '15px', fontWeight: 700, letterSpacing: '2px' }}>⚔ RANIT SARKHEL TRADE MANAGER</div>
-        <button onClick={handleNewSession} style={{ background: '#d29922', color: '#0d1117', border: 'none', padding: '6px 13px', fontWeight: 700, fontSize: '12px', letterSpacing: '0.5px' }}>+ NEW SESSION</button>
-      </div>
+      <header className="app-header">
+        <div className="brand-title">
+          <span>⚔</span> TRADE MANAGER
+        </div>
+        <button onClick={handleNewSession} className="btn-primary">
+          + NEW SESSION
+        </button>
+      </header>
 
       <div className="wrap">
         {/* LEFT: Trade Log */}
@@ -125,11 +129,11 @@ export default function TradeManager() {
           <table>
             <thead>
               <tr>
-                <th style={{ textAlign: 'center', width: '28px' }}>NO.</th>
-                <th style={{ textAlign: 'center', width: '68px' }}>RESULT</th>
-                <th style={{ textAlign: 'right', width: '82px' }}>TRADE AMT <span className="edit-tag">✏</span></th>
-                <th style={{ textAlign: 'right', width: '78px' }}>RETURN</th>
-                <th style={{ textAlign: 'right' }}>CUR. BALANCE</th>
+                <th className="text-center" style={{ width: '40px' }}>NO.</th>
+                <th className="text-center" style={{ width: '80px' }}>RESULT</th>
+                <th className="text-right" style={{ width: '100px' }}>TRADE AMT <span className="edit-tag">✏</span></th>
+                <th className="text-right" style={{ width: '90px' }}>RETURN</th>
+                <th className="text-right">CUR. BALANCE</th>
               </tr>
             </thead>
             <tbody>
@@ -137,76 +141,84 @@ export default function TradeManager() {
                 const prevResult = i > 0 ? results[i - 1] : 'seed';
                 const isSessionEnded = (i > 0 && results[i - 1] === 'W') || (i >= maxLossLimit);
                 const canSet = !isSessionEnded && (i === 0 || prevResult === 'L');
-                const rowBg = trade.result === 'W' ? '#0f2a1a' : trade.result === 'L' ? '#2a0f0f' : 'transparent';
-                const retColor = trade.ret > 0 ? '#3fb950' : trade.ret < 0 ? '#f85149' : '#484f58';
-                const balColor = trade.result ? '#f0f6fc' : '#6e7681';
-                const selBg = trade.result === 'W' ? '#238636' : trade.result === 'L' ? '#da3633' : '#21262d';
+                
+                const trClass = trade.result === 'W' ? 'tr-win' : trade.result === 'L' ? 'tr-loss' : 'tr-hover';
+                const selClass = trade.result === 'W' ? 'res-sel res-win' : trade.result === 'L' ? 'res-sel res-loss' : 'res-sel res-empty';
+                
+                const retColorClass = trade.ret > 0 ? 'val-success' : trade.ret < 0 ? 'val-danger' : '';
                 const retDisplay = trade.ret !== null ? (trade.ret >= 0 ? '+' : '') + money(trade.ret, currSymbol) : '—';
                 const isManual = manualTradeAmts[i] !== null;
 
                 return (
-                  <tr key={i} style={{ background: rowBg, borderBottom: '1px solid #161b22' }}>
-                    <td style={{ padding: '5px 8px', color: '#484f58', textAlign: 'center', fontWeight: 600 }}>{i + 1}</td>
-                    <td style={{ padding: '4px 6px', textAlign: 'center' }}>
+                  <tr key={i} className={trClass}>
+                    <td className="text-center" style={{ color: 'var(--text-muted)' }}>{i + 1}</td>
+                    <td className="text-center">
                       <select
                         value={trade.result}
                         onChange={e => updateResult(i, e.target.value)}
                         disabled={!canSet}
-                        className="res-sel"
-                        style={{ background: selBg, color: '#f0f6fc', opacity: canSet ? 1 : 0.35, cursor: canSet ? 'pointer' : 'not-allowed' }}
+                        className={selClass}
+                        style={{ opacity: canSet ? 1 : 0.4, cursor: canSet ? 'pointer' : 'not-allowed' }}
                       >
                         <option value="">–</option>
                         <option value="W">W ▲</option>
                         <option value="L">L ▼</option>
                       </select>
                     </td>
-                    <td style={{ padding: '5px 6px', textAlign: 'right', color: '#79c0ff' }}>
+                    <td className="text-right" style={{ color: isManual ? 'var(--accent-gold)' : '#3b82f6' }}>
                       {trade.tradeAmt !== null ? (
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-                          <span style={{ color: '#484f58', marginRight: '2px', fontSize: '11px' }}>{currSymbol}</span>
+                        <div className="flex-center" style={{ justifyContent: 'flex-end' }}>
+                          <span style={{ color: 'var(--text-muted)', marginRight: '4px' }}>{currSymbol}</span>
                           <input
                             type="number"
                             step="0.01"
                             value={isManual ? manualTradeAmts[i] : trade.tradeAmt.toFixed(2)}
                             onChange={e => updateManualAmt(i, e.target.value)}
-                            style={{ background: 'transparent', border: 'none', color: isManual ? '#d29922' : '#79c0ff', textAlign: 'right', width: '55px', fontFamily: 'inherit', fontSize: 'inherit', fontWeight: 700, outline: 'none', borderBottom: '1px dashed #30363d', padding: 0 }}
+                            className="inline-input text-right"
+                            style={{ width: '60px', color: 'inherit' }}
                           />
                         </div>
                       ) : '—'}
                     </td>
-                    <td style={{ padding: '5px 6px', textAlign: 'right', color: retColor }}>{retDisplay}</td>
-                    <td style={{ padding: '5px 8px', textAlign: 'right', color: balColor, fontWeight: trade.result ? 700 : 400 }}>{currSymbol}{trade.balance.toFixed(2)}</td>
+                    <td className={`text-right font-mono ${retColorClass}`}>{retDisplay}</td>
+                    <td className="text-right val" style={{ color: trade.result ? 'var(--text-primary)' : 'var(--text-muted)' }}>
+                      {currSymbol}{trade.balance.toFixed(2)}
+                    </td>
                   </tr>
                 )
               })}
             </tbody>
           </table>
-          <div style={{ padding: '10px', textAlign: 'center' }}>
-            <button onClick={handleClear} style={{ background: '#21262d', color: '#8b949e', border: '1px solid #30363d', padding: '5px 18px', fontSize: '11px', letterSpacing: '1px' }}>CLEAR</button>
+          <div className="text-center" style={{ padding: '20px' }}>
+            <button onClick={handleClear} className="btn-secondary">CLEAR LOG</button>
           </div>
         </div>
 
         {/* MIDDLE: Calculations */}
-        <div className="panel" style={{ padding: '10px 9px' }}>
-          <div style={{ background: '#21262d', borderRadius: '4px', padding: '5px 10px', marginBottom: '9px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '10px', color: '#d29922', border: '1px solid #d2992240' }}>
-            <span>✏</span><span>Gold-bordered fields are editable — click to change</span>
+        <div className="panel">
+          <div className="info-banner">
+            <span>✏</span>
+            <span>Gold-bordered fields are editable — click to change</span>
           </div>
 
           <div className="card">
             <div className="card-title">Calculations</div>
             <div className="row">
               <span className="lbl">Initial Capital <span className="edit-tag">✏</span></span>
-              <input type="number" className="edt edt-lg" value={initialCapital} onChange={e => setInitialCapital(parseFloat(e.target.value) || 0)} step="0.01" min="0" />
+              <div className="flex-center gap-2">
+                <span className="font-mono text-muted">{currSymbol}</span>
+                <input type="number" className="input-base input-editable input-lg" value={initialCapital} onChange={e => setInitialCapital(parseFloat(e.target.value) || 0)} step="0.01" min="0" />
+              </div>
             </div>
             <div className="row"><span className="lbl">Total Trades</span><span className="val">{totalTrades}</span></div>
             <div className="row"><span className="lbl">Win Trades</span><span className="val">{winTrades}</span></div>
             <div className="row">
               <span className="lbl">Payout % <span className="edit-tag">✏</span></span>
-              <input type="number" className="edt edt-sm" value={payoutPct} onChange={e => setPayoutPct(parseFloat(e.target.value) || 0)} step="0.01" min="0.01" max="1" />
+              <input type="number" className="input-base input-editable input-sm" value={payoutPct} onChange={e => setPayoutPct(parseFloat(e.target.value) || 0)} step="0.01" min="0.01" max="1" />
             </div>
             <div className="row">
               <span className="lbl">Currency <span className="edit-tag">✏</span></span>
-              <select value={currency} onChange={e => setCurrency(e.target.value)} style={{ background: '#1c2128', color: '#f0f6fc', border: '1px solid #d29922', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 700, outline: 'none' }}>
+              <select value={currency} onChange={e => setCurrency(e.target.value)} className="select-base select-editable">
                 <option value="USD ($)">USD ($)</option>
                 <option value="EUR (€)">EUR (€)</option>
                 <option value="GBP (£)">GBP (£)</option>
@@ -217,35 +229,37 @@ export default function TradeManager() {
                 <option value="BTC (₿)">BTC (₿)</option>
               </select>
             </div>
-            <div style={{ textAlign: 'right', marginTop: '6px' }}>
-              <span style={{ background: '#21262d', color: '#8b949e', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', display: totalTrades > 0 ? 'inline' : 'none' }}>
-                {Math.round(winRate * 100)}% W/R
-              </span>
-            </div>
+            {totalTrades > 0 && (
+              <div className="text-right" style={{ marginTop: '12px' }}>
+                <span className="badge badge-neutral">
+                  {Math.round(winRate * 100)}% W/R
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="card">
             <div className="card-title">Session Target</div>
             <div className="row"><span className="lbl">Capital Final</span><span className="val">{currSymbol}{capitalFinal.toFixed(2)}</span></div>
-            <div className="row"><span className="lbl">Account Gain</span><span className="val" style={{ color: accountGain >= 0 ? '#3fb950' : '#f85149' }}>{(accountGainPct >= 0 ? '+' : '')}{(accountGainPct * 100).toFixed(2)}%</span></div>
+            <div className="row"><span className="lbl">Account Gain</span><span className={`val ${accountGain >= 0 ? 'val-success' : 'val-danger'}`}>{(accountGainPct >= 0 ? '+' : '')}{(accountGainPct * 100).toFixed(2)}%</span></div>
             <div className="row">
               <span className="lbl">Win Profit <span className="edit-tag">✏</span></span>
-              <div style={{ background: '#238636', borderRadius: '4px', padding: '1px 8px', display: 'flex', alignItems: 'center', gap: '3px', border: '1px solid #3fb950' }}>
-                <span style={{ color: '#f0f6fc', fontSize: '12px' }}>{currSymbol}</span>
-                <input type="number" value={sessionProfitTarget} onChange={e => setSessionProfitTarget(parseFloat(e.target.value) || 0)} step="0.01" min="0.01" style={{ background: 'transparent', color: '#f0f6fc', border: 'none', width: '58px', textAlign: 'right', fontSize: '13px', fontWeight: 700, outline: 'none' }} />
+              <div className="flex-center gap-2" style={{ background: 'var(--success-bg)', border: '1px solid var(--success)', borderRadius: '6px', padding: '4px 8px' }}>
+                <span style={{ color: 'var(--success)', fontSize: '12px' }}>{currSymbol}</span>
+                <input type="number" value={sessionProfitTarget} onChange={e => setSessionProfitTarget(parseFloat(e.target.value) || 0)} step="0.01" min="0.01" style={{ background: 'transparent', color: 'var(--text-primary)', border: 'none', width: '60px', textAlign: 'right', fontSize: '14px', fontWeight: 700, outline: 'none', fontFamily: 'var(--font-mono)' }} />
               </div>
             </div>
             <div className="row">
-              <span className="lbl">Stop Loss <span className="edit-tag">✏</span>&nbsp;<span style={{ fontSize: '9px', color: '#8b949e' }}>(% of capital)</span></span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span className="val" style={{ color: '#d29922' }}>{currSymbol}{stopLoss.toFixed(2)}</span>
-                <input type="number" className="edt" value={stopLossPct} onChange={e => setStopLossPct(parseFloat(e.target.value) || 0)} step="1" min="1" max="99" style={{ width: '52px', fontSize: '12px', padding: '3px 5px' }} />
-                <span style={{ color: '#8b949e', fontSize: '11px' }}>%</span>
+              <span className="lbl">Stop Loss <span className="edit-tag">✏</span>&nbsp;<span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>(% of capital)</span></span>
+              <div className="flex-center gap-2">
+                <span className="val val-accent" style={{ marginRight: '8px' }}>{currSymbol}{stopLoss.toFixed(2)}</span>
+                <input type="number" className="input-base input-editable" value={stopLossPct} onChange={e => setStopLossPct(parseFloat(e.target.value) || 0)} step="1" min="1" max="99" style={{ width: '50px', padding: '6px 4px', textAlign: 'center' }} />
+                <span style={{ color: 'var(--text-muted)' }}>%</span>
               </div>
             </div>
             <div className="row">
               <span className="lbl">Max Loss Limit <span className="edit-tag">✏</span></span>
-              <input type="number" className="edt edt-sm" value={maxLossLimit} onChange={e => setMaxLossLimit(parseInt(e.target.value) || 0)} step="1" min="1" />
+              <input type="number" className="input-base input-editable input-sm" value={maxLossLimit} onChange={e => setMaxLossLimit(parseInt(e.target.value) || 0)} step="1" min="1" />
             </div>
           </div>
 
@@ -253,58 +267,61 @@ export default function TradeManager() {
             <div className="card-title">Session Performance</div>
             <div className="row">
               <span className="lbl">Events Won</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div className="flex-center gap-3">
                 <span className="val">{winTrades.toFixed(2)}</span>
-                <span style={{ background: '#0f2a1a', color: '#3fb950', fontSize: '11px', padding: '2px 8px', borderRadius: '10px', fontWeight: 700 }}>{totalTrades > 0 ? Math.round(winRate * 100) : 0}%</span>
+                <span className="badge badge-success">{totalTrades > 0 ? Math.round(winRate * 100) : 0}%</span>
               </div>
             </div>
             <div className="row">
               <span className="lbl">Events Lost</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div className="flex-center gap-3">
                 <span className="val">{lossTrades.toFixed(2)}</span>
-                <span style={{ background: '#2a0f0f', color: '#f85149', fontSize: '11px', padding: '2px 8px', borderRadius: '10px', fontWeight: 700 }}>{totalTrades > 0 ? Math.round(lossRate * 100) : 0}%</span>
+                <span className="badge badge-danger">{totalTrades > 0 ? Math.round(lossRate * 100) : 0}%</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* RIGHT: Counter + Daily Goals */}
-        <div className="panel" style={{ padding: '10px 9px' }}>
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '9px' }}>
-            <button style={{ flex: 1, background: '#21262d', color: '#8b949e', border: '1px solid #30363d', padding: '7px', fontSize: '11px', letterSpacing: '0.5px' }}>LOG SESSION</button>
-            <button style={{ background: '#21262d', color: '#8b949e', border: '1px solid #30363d', padding: '7px 12px', fontSize: '11px' }}>CB</button>
+        <div className="panel">
+          <div className="flex-center gap-2" style={{ marginBottom: '16px' }}>
+            <button className="btn-secondary" style={{ flex: 1 }}>LOG SESSION</button>
+            <button className="btn-icon">📋</button>
           </div>
 
-          <div className="card" style={{ textAlign: 'center', padding: '16px 12px' }}>
+          <div className="card text-center" style={{ padding: '32px 24px' }}>
             <div className="card-title">Session Counter</div>
-            <div style={{ fontSize: '80px', fontWeight: 700, color: '#f0f6fc', lineHeight: 1, letterSpacing: '-2px' }}>{sessionCount}</div>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '14px' }}>
-              <button onClick={() => setSessionCount(c => Math.max(1, c - 1))} style={{ background: '#21262d', color: '#c9d1d9', border: '1px solid #30363d', width: '40px', height: '34px', fontSize: '14px' }}>▼</button>
-              <button onClick={() => setSessionCount(c => c + 1)} style={{ background: '#21262d', color: '#c9d1d9', border: '1px solid #30363d', width: '40px', height: '34px', fontSize: '14px' }}>▲</button>
+            <div className="counter-text">{sessionCount}</div>
+            <div className="counter-controls">
+              <button className="btn-icon" onClick={() => setSessionCount(c => Math.max(1, c - 1))}>−</button>
+              <button className="btn-icon" onClick={() => setSessionCount(c => c + 1)}>+</button>
             </div>
-            <button onClick={() => setSessionCount(1)} style={{ marginTop: '8px', background: 'transparent', color: '#484f58', border: '1px solid #21262d', padding: '3px 12px', fontSize: '10px', letterSpacing: '1px' }}>RESET</button>
+            <button className="btn-secondary" style={{ marginTop: '16px', fontSize: '10px', padding: '6px 12px' }} onClick={() => setSessionCount(1)}>RESET COUNTER</button>
           </div>
 
           <div className="card">
-            <div className="card-title">Daily Goals <span style={{ fontSize: '8px', letterSpacing: '0.3px' }}>(est.)</span></div>
+            <div className="card-title">Daily Goals <span style={{ textTransform: 'none', fontWeight: 500 }}>(est.)</span></div>
             <div className="row">
               <span className="lbl">Profit Target <span className="edit-tag">✏</span></span>
-              <input type="number" className="edt edt-sm" value={profitTarget} onChange={e => setProfitTarget(parseFloat(e.target.value) || 0)} step="1" min="0" />
+              <div className="flex-center gap-2">
+                <span className="font-mono text-muted">{currSymbol}</span>
+                <input type="number" className="input-base input-editable input-sm" value={profitTarget} onChange={e => setProfitTarget(parseFloat(e.target.value) || 0)} step="1" min="0" />
+              </div>
             </div>
             <div className="row"><span className="lbl">Daily Goal Format</span><span className="val">{currSymbol}</span></div>
-            <div className="row"><span className="lbl">Sessions Required</span><span className="val" style={{ color: '#79c0ff' }}>{sessionsReq}</span></div>
-            <div className="row"><span className="lbl">Account Gain</span><span className="val" style={{ color: '#3fb950' }}>{(acctGainGoal * 100).toFixed(2)}%</span></div>
-            <div className="row"><span className="lbl">Capital Final</span><span className="val" style={{ color: '#3fb950' }}>{currSymbol}{(initialCapital + profitTarget).toFixed(2)}</span></div>
+            <div className="row"><span className="lbl">Sessions Required</span><span className="val" style={{ color: '#3b82f6' }}>{sessionsReq}</span></div>
+            <div className="row"><span className="lbl">Account Gain</span><span className="val val-success">{(acctGainGoal * 100).toFixed(2)}%</span></div>
+            <div className="row"><span className="lbl">Capital Final</span><span className="val val-success">{currSymbol}{(initialCapital + profitTarget).toFixed(2)}</span></div>
           </div>
 
-          <div className="card" style={{ borderColor: '#21262d' }}>
-            <div className="card-title" style={{ marginBottom: '8px' }}>Formula Reference</div>
-            <div style={{ fontSize: '10px', color: '#484f58', lineHeight: 1.8 }}>
-              <div>• <span style={{ color: '#79c0ff' }}>Trade 1:</span> {currSymbol}1.10 (Fixed)</div>
-              <div>• <span style={{ color: '#3fb950' }}>After W:</span> Session Ends</div>
-              <div>• <span style={{ color: '#f85149' }}>After L:</span> ROUNDUP((loss + target) ÷ payout, 2)</div>
-              <div>• <span style={{ color: '#d29922' }}>Stop Loss:</span> capital × (1 − stop%)</div>
-              <div>• <span style={{ color: '#8b949e' }}>Sessions:</span> ROUNDUP(profit ÷ win profit, 0)</div>
+          <div className="card" style={{ background: 'rgba(0,0,0,0.2)' }}>
+            <div className="card-title">Formula Reference</div>
+            <div className="formula-ref">
+              <div className="formula-item"><div className="formula-dot dot-blue"></div> <span>Trade 1: {currSymbol}1.10 (Fixed)</span></div>
+              <div className="formula-item"><div className="formula-dot dot-green"></div> <span>After W: Session Ends</span></div>
+              <div className="formula-item"><div className="formula-dot dot-red"></div> <span>After L: ROUNDUP((loss + target) ÷ payout, 2)</span></div>
+              <div className="formula-item"><div className="formula-dot dot-gold"></div> <span>Stop Loss: capital × (1 − stop%)</span></div>
+              <div className="formula-item"><div className="formula-dot dot-gray"></div> <span>Sessions: ROUNDUP(profit ÷ win profit, 0)</span></div>
             </div>
           </div>
         </div>
